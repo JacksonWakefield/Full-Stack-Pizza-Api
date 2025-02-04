@@ -39,12 +39,10 @@ def updateTopping(request):
             return Response({"error": "Both oldName and newName must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Find and update the topping
-        newTopping = Toppings.objects.get(name=old_name)
-        newTopping.name = new_name
-        newTopping.save()
+        Toppings.objects.filter(name=old_name).update(name=new_name)
 
         # Return the updated name
-        return Response({"name": newTopping.name}, status=status.HTTP_200_OK)
+        return Response({"name": new_name}, status=status.HTTP_200_OK)
     except Toppings.DoesNotExist:
         # Handle case where topping is not found
         return Response({"error": "Topping not found."}, status=status.HTTP_404_NOT_FOUND)
