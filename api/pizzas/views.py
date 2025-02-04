@@ -45,8 +45,7 @@ def updatePizza(request):
 
         # Find and update the topping
         newPizza = Pizza.objects.get(name=old_name)
-        newPizza.name = new_name
-        newPizza.save()
+        newPizza.update(name=new_name)
 
         # Return the updated name
         return Response({"name": newPizza.name}, status=status.HTTP_200_OK)
