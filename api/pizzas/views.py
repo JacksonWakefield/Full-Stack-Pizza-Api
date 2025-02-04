@@ -44,11 +44,10 @@ def updatePizza(request):
             return Response({"error": "Both oldName and newName must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Find and update the topping
-        newPizza = Pizza.objects.get(name=old_name)
-        newPizza.update(name=new_name)
+        Pizza.objects.filter(name=old_name).update(name=new_name)
 
         # Return the updated name
-        return Response({"name": newPizza.name}, status=status.HTTP_200_OK)
+        return Response({"name": new_name}, status=status.HTTP_200_OK)
     except Pizza.DoesNotExist:
         # Handle case where topping is not found
         return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
