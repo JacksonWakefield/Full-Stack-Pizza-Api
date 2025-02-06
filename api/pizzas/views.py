@@ -33,8 +33,18 @@ def updatePizza(request):
         if not old_name or not new_name:
             return Response({"error": "Both oldName and newName must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Check if the pizza exists
+        pizza = Pizza.objects.filter(name=old_name).first()
+        if not pizza:
+            return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Start a database transaction to handle the update and related changes
         # Update the pizza name
-        Pizza.objects.filter(name=old_name).update(name=new_name)
+        pizza.name = new_name
+        pizza.save()
+
+        # Update the associated PizzaToppings with the new pizza name
+        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName__name=new_name)
 
         return Response({"name": new_name}, status=status.HTTP_200_OK)
     except Pizza.DoesNotExist:
