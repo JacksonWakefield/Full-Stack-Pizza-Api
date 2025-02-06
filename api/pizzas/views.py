@@ -47,8 +47,11 @@ def updatePizza(request):
             if pizza_updated_count == 0:
                 return Response({"error": "Failed to update pizza."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Now update the toppings related to this pizza using update()
-            PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=pizza)
+            # Fetch the updated pizza object (after name change)
+            updated_pizza = Pizza.objects.get(name=new_name)
+
+            # Update the foreign key reference in PizzaToppings
+            PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=updated_pizza)
 
         # Return the updated pizza name
         return Response({"name": new_name}, status=status.HTTP_200_OK)
