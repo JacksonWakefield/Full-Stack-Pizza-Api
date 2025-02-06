@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Pizza, PizzaToppings
 from .serializers import PizzaSerializer, PizzaToppingsSerializer
+from django.db import transaction
 
 # /pizza - GET - Returns list of pizzas from RDS
 @api_view(['GET'])
@@ -39,16 +40,18 @@ def updatePizza(request):
             return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Start a database transaction to ensure atomic changes
-        # Update the pizza's name
-        pizza.name = new_name
-        pizza.save()  # Save the updated pizza name
+        with transaction.atomic():
+            # Update the pizza's name using update() instead of save()
+            pizza_updated_count = Pizza.objects.filter(name=old_name).update(name=new_name)
 
-        # Now update the toppings related to this pizza
-        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=new_name)
+            if pizza_updated_count == 0:
+                return Response({"error": "Failed to update pizza."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Return updated pizza name
+            # Now update the toppings related to this pizza using update()
+            PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=pizza)
+
+        # Return the updated pizza name
         return Response({"name": new_name}, status=status.HTTP_200_OK)
-
     except Pizza.DoesNotExist:
         return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
