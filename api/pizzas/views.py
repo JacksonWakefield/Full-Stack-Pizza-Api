@@ -44,7 +44,7 @@ def updatePizza(request):
         pizza.save()  # Save the updated pizza name
 
         # Now update the toppings related to this pizza
-        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName__name=new_name)
+        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=new_name)
 
         # Return updated pizza name
         return Response({"name": new_name}, status=status.HTTP_200_OK)
