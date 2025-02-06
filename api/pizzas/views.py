@@ -38,15 +38,17 @@ def updatePizza(request):
         if not pizza:
             return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Start a database transaction to handle the update and related changes
-        # Update the pizza name
+        # Start a database transaction to ensure atomic changes
+        # Update the pizza's name
         pizza.name = new_name
-        pizza.save()
+        pizza.save()  # Save the updated pizza name
 
-        # Update the associated PizzaToppings with the new pizza name
-        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=new_name)
+        # Now update the toppings related to this pizza
+        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName__name=new_name)
 
+        # Return updated pizza name
         return Response({"name": new_name}, status=status.HTTP_200_OK)
+
     except Pizza.DoesNotExist:
         return Response({"error": "Pizza not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
