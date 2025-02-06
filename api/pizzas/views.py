@@ -44,7 +44,7 @@ def updatePizza(request):
         pizza.save()
 
         # Update the associated PizzaToppings with the new pizza name
-        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName__name=new_name)
+        PizzaToppings.objects.filter(pizzaName=pizza).update(pizzaName=new_name)
 
         return Response({"name": new_name}, status=status.HTTP_200_OK)
     except Pizza.DoesNotExist:
